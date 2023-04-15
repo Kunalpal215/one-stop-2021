@@ -346,6 +346,8 @@ gcScoreboardRouter.get(
   "/gc/manthan/event-schedule",
   getManthanEventsSchdedules
 );
+
+
 gcScoreboardRouter.get("/gc/manthan/event-schedule/results", getManthanResults);
 
 

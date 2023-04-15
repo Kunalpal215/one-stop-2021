@@ -3,8 +3,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const routers = require("./routers");
 const LastUpdate = require("./models/lastUpdate");
-
+const { BASEURL, ADMINPANELROOT } = require("./helpers/constants");
+const { adminJsRouter } = require("./admin_panel/admin-config");
 const app = express();
+
+// admin panel router
+
+app.use(ADMINPANELROOT,adminJsRouter);
 
 // setting ejs as view engine
 
@@ -40,21 +45,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// new API routes
-
-let BASEURL = process.env.BASE_URL + "v2/";
-
 // Validate API Call
 
 app.use((req,res,next) => {
-  console.log(req.headers);
-  if(req.originalMethod!=="GET" && req.originalUrl.split("/").includes("v2") && req.headers["security-key"]!==process.env.SECURITY_KEY){
+  if(req.method!=="GET" && req.originalUrl.split("/").includes("v2") && req.headers["security-key"]!==process.env.SECURITY_KEY){
     res.json({"message":"You are not authorized"});
     return;
   }
   next();
 });
 
+// API routers
 
 app.use(BASEURL, routers.userRouter.userRouter);
 app.use(BASEURL, routers.authRouter.authRouter);

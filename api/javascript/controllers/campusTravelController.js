@@ -1,9 +1,10 @@
 const { TravelPostModel, TravelChatModel, ReplyPostModel } = require("../models/campusTravelModel");
 const nodeoutlook = require('nodejs-nodemailer-outlook');
+const { sendToDevice } = require("./notificationController");
 
 const sendMailForTravelPostReply = async (replier_name, reciever_email,reciever_name,from,to,travelDateTime) => {
     console.log(reciever_name,replier_name,travelDateTime);
-    nodeoutlook.sendEmail({
+    await nodeoutlook.sendEmail({
         auth: {
             user: process.env.SWC_EMAIL,
             pass: process.env.SWC_EMAIL_PASSWORD
@@ -156,6 +157,7 @@ exports.getTravelPostChatReplies = async (req, res) => {
 
 exports.postReplyChat = async (req, res) => {
     try {
+        console.log(req.body);
         const id = req.query.chatId;
         const data = req.body;
         let travelChatReply = new ReplyPostModel(data);
@@ -167,15 +169,15 @@ exports.postReplyChat = async (req, res) => {
             console.log(travelPost["travelDateTime"]);
             if(travelPost["email"]!==data["email"]){ // when other people writes a message
                 sendMailForTravelPostReply(data["name"],travelPost["email"],travelPost["name"],travelPost["from"],travelPost["to"],travelPost["travelDateTime"]);
-
+                req.body.notif={};
                   req.body.notif.category = "travel";
                   req.body.notif.model = "maybeJsonValue";
-                  req.body.notif.header = data["name"];
-                  req.body.notif.body = "";
+                  req.body.notif.header = "Cab sharing reply";
+                  req.body.notif.body = `You have got reply from ${data["name"]} 🙌`;
                   //ADD here chat reply body
-                  req.body.sendTo = "";
+                  req.body.sendTo = travelPost.email;
                   // ADD send to email here
-                  sendToDevice(req, res, _);
+                  sendToDevice(req,res);
             }
         });
         res.json({ "success": true });
