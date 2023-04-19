@@ -52,17 +52,6 @@ exports.sendToAll = async (req, res, next) => {
     });
 
   try {
-    if (!req.body.sendTo) {
-      throw "Missing Fields";
-    }
-
-    let user = await onestopUserModel.findOne({ email: req.body.sendTo });
-
-    if (!user) {
-      throw "Device for the given user not found!";
-    }
-    const token = user["deviceToken"];
-
     const payload = {
       data: {
         category: req.body.notif.category,
